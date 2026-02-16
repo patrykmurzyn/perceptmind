@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="300" height="300">
-  <g stroke="#F97316" fill="none" stroke-linecap="round">
+  <g stroke="#080C14" fill="none" stroke-linecap="round">
     
     <g transform="rotate(-45, 60, 60)">
       
@@ -11,12 +11,11 @@
         <line x1="8" y1="45" x2="38" y2="45" />
         
         <!-- Środkowa linia: "CHAOS" - przesunięta w lewo -->
-        <!-- Kreska początkowa -->
-        <line x1="2" y1="60" x2="18" y2="60" />
-        <!-- Pierwsza cząsteczka danych (kropka) -->
-        <line x1="25" y1="60" x2="25.1" y2="60" stroke-width="4" /> 
-        <!-- Druga cząsteczka danych (kropka) - teraz wyraźnie przed kołem -->
-        <line x1="33" y1="60" x2="33.1" y2="60" stroke-width="4" />
+        <!-- Kreska początkowa (Orange Accent) -->
+        <line x1="10" y1="60" x2="26" y2="60" stroke="#F97316" />
+        <!-- Pierwsza cząsteczka danych (kropka) (Orange Accent) -->
+        <line x1="33" y1="60" x2="33.1" y2="60" stroke-width="4" stroke="#F97316" /> 
+        <!-- Druga cząsteczka danych usunięta -->
         
         <!-- Dolna linia: zaczyna się później -->
         <line x1="15" y1="75" x2="38" y2="75" />

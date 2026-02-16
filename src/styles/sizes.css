@@ -1,0 +1,52 @@
+/* 
+  Design System Sizes 
+  Based on .ai/UI/sizes.md
+  Scale: Major Third (1.250)
+  Fluid Typography: clamp()
+*/
+
+:root {
+  /* Font Sizes - Mobile (320px) to Desktop (1280px) */
+  
+  /* sm: 0.8rem -> 0.875rem */
+  --font-size-sm: clamp(0.8rem, 0.77rem + 0.13vw, 0.875rem);
+  
+  /* base: 1rem (16px) -> 1.125rem (18px) */
+  --font-size-base: clamp(1rem, 0.96rem + 0.21vw, 1.125rem);
+  
+  /* lg: 1.25rem -> 1.40rem */
+  --font-size-lg: clamp(1.25rem, 1.2rem + 0.26vw, 1.406rem);
+  
+  /* xl: 1.56rem -> 1.75rem */
+  --font-size-xl: clamp(1.563rem, 1.5rem + 0.33vw, 1.758rem);
+  
+  /* 2xl: 1.95rem -> 2.2rem */
+  --font-size-2xl: clamp(1.953rem, 1.87rem + 0.41vw, 2.197rem);
+  
+  /* 3xl: 2.44rem -> 2.75rem */
+  --font-size-3xl: clamp(2.441rem, 2.34rem + 0.51vw, 2.747rem);
+  
+  /* 4xl: 3.05rem -> 3.43rem */
+  --font-size-4xl: clamp(3.052rem, 2.92rem + 0.64vw, 3.433rem);
+  
+  /* 5xl: 3.81rem -> 4.29rem (Standard Big) */
+  --font-size-5xl: clamp(3.815rem, 3.66rem + 0.8vw, 4.292rem);
+  
+  /* 6xl: 4.76rem -> 8rem (Hero Title - Custom for Impact) */
+  --font-size-6xl: clamp(4.768rem, 3.7rem + 5.3vw, 8rem);
+
+
+  /* Spacing - Fluid */
+  --space-3xs: clamp(0.25rem, 0.23rem + 0.1vw, 0.3125rem);
+  --space-2xs: clamp(0.5rem, 0.46rem + 0.21vw, 0.625rem);
+  --space-xs: clamp(0.75rem, 0.69rem + 0.31vw, 0.9375rem);
+  --space-s: clamp(1rem, 0.92rem + 0.42vw, 1.25rem);
+  --space-m: clamp(1.5rem, 1.38rem + 0.63vw, 1.875rem);
+  --space-l: clamp(2rem, 1.83rem + 0.83vw, 2.5rem);
+  --space-xl: clamp(3rem, 2.75rem + 1.25vw, 3.75rem);
+  --space-2xl: clamp(4rem, 3.67rem + 1.67vw, 5rem);
+  --space-3xl: clamp(6rem, 5.5rem + 2.5vw, 7.5rem);
+
+  /* Touch Target */
+  --touch-target-min: 44px;
+}

@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import NeuralBackground from '../components/NeuralBackground.astro';
 ---
 
 <html lang="en">
@@ -11,11 +12,13 @@ import '../styles/global.css';
 		<title>PerceptMind</title>
 	</head>
 	<body>
+        <NeuralBackground />
 		<main>
-			<h1 class="title">Percept</h1>
-			<h1 class="title">
+			<h1 class="title title-top">Percept</h1>
+			<h1 class="title title-bottom">
 				M<span class="i-container"><span class="i" id="mind-i">i</span></span>nd
 			</h1>
+            <h2 class="subtitle">AI Solutions for Business</h2>
 		</main>
 
 		<script>
@@ -24,43 +27,84 @@ import '../styles/global.css';
 			// Initial entrance timeline
 			const tl = gsap.timeline();
 
-			// Initial state set in CSS to avoid FOUC, but ensuring here
-			gsap.set("#mind-i", { display: "inline-block", transformOrigin: "center center" });
+			// Initial state: The 'i' starts as '!' (inverted and orange)
+			gsap.set("#mind-i", { 
+                display: "inline-block", 
+                transformOrigin: "center center",
+                rotationX: 180,
+                color: "var(--color-accent)"
+            });
 
 			// Fade in global elements
 			gsap.to("body", { autoAlpha: 1, duration: 0.5 });
 			
-			// Initial reveal of title
+			// Initial reveal of title and subtitle
 			gsap.from(".title", {
 				y: 50,
 				opacity: 0,
 				duration: 1,
 				stagger: 0.2
 			});
-
-			// The 'i' animation loop
-            const iTween = gsap.timeline({ 
-                repeat: -1, 
-                defaults: { ease: "power2.inOut", duration: 0.6 } 
+            
+            gsap.from(".subtitle", {
+                y: 20,
+                opacity: 0,
+                duration: 1,
+                delay: 0.5
             });
 
-            // 1. Initial delay then animate to Inverted (Orange, 180deg)
-            iTween.to("#mind-i", {
-                rotationX: 180,
-                color: "var(--color-accent)",
-                delay: 2 
-            })
-            // 2. Hold for 30s (by adding a dummy tween or delay to the next tween)
-            .to("#mind-i", {
-                rotationX: 0,
-                color: "var(--color-text-high)",
-                delay: 30
-            })
-            // 3. Hold for 30s before repeating (which loops back to start)
-            .to("#mind-i", {
-                duration: 0, // Instant dummy tween to just add delay
-                delay: 30
-            });
+            // Random Periodic Animation
+            // Goal: Every ~30s (randomized), flip ! to i, hold 2s, flip back.
+            
+            const iElement = document.getElementById('mind-i');
+
+            function flipToIAndBack() {
+                if (!iElement) return;
+
+                const flipDuration = 0.5;
+                const holdDuration = 2; // User requested 2 seconds
+
+                const tl = gsap.timeline({
+                    onComplete: () => {
+                        // Reset to initial state (180deg) invisibly so the next cycle can start cleanly
+                        // 540deg is visually same as 180deg (1.5 turns vs 0.5 turns)
+                        gsap.set(iElement, { rotationX: 180 });
+                        scheduleNextFlip();
+                    }
+                });
+
+                // 1. Flip to 'i' (White, 360deg - effectively 0 visually)
+                // We go from 180 -> 360 to continue the rotation direction, instead of going back to 0
+                tl.to(iElement, {
+                    rotationX: 360,
+                    color: "var(--color-text-high)",
+                    duration: flipDuration,
+                    ease: "power2.inOut"
+                })
+                // 2. Hold
+                .to(iElement, {
+                    duration: holdDuration
+                })
+                // 3. Flip back to '!' (Orange, 540deg - effectively 180 visually)
+                // Continue rotation in same direction (360 -> 540)
+                .to(iElement, {
+                    rotationX: 540,
+                    color: "var(--color-accent)",
+                    duration: flipDuration,
+                    ease: "power2.inOut"
+                });
+            }
+
+            function scheduleNextFlip() {
+                // "Raz na jakiś czas powiedzmy raz na 30 sekund w losowym momencie"
+                // Random interval between 20s and 40s
+                const randomDelay = Math.random() * 20 + 20; 
+                
+                gsap.delayedCall(randomDelay, flipToIAndBack);
+            }
+
+            // Start the cycle with an initial random delay so it doesn't happen immediately
+            gsap.delayedCall(Math.random() * 5 + 2, scheduleNextFlip);
 		</script>
 
 		<style>
@@ -71,21 +115,39 @@ import '../styles/global.css';
 				align-items: center;
 				height: 100vh;
 				width: 100%;
+                gap: var(--space-3xs); /* Slight gap between lines */
 			}
 
 			.title {
 				font-family: 'Satoshi', sans-serif;
 				font-weight: 900; /* Black weight */
-				font-size: 8rem;
-				line-height: 1;
+				font-size: var(--font-size-6xl);
+				line-height: 1.1;
 				margin: 0;
 				letter-spacing: -0.02em;
 				color: var(--color-text-high);
-				text-transform: uppercase; /* Optional, user said 'Percept' and 'Mind' but large titles often look good uppercase, sticking to user input though which was Title Case in description but 'Percept' and 'Mind' in text. Let's stick to exactly what user asked: Percept and Mind */
-                text-transform: none;
+				text-transform: none;
+                position: relative;
 			}
             
-            /* User asked for "Percept" and "Mind" specifically */
+            .title-top {
+                right: 0.0em; /* Shift Percept Left (Increased from 0.55em) */
+            }
+            
+            .title-bottom {
+                left: -0.077em; /* Shift Mind Right to close the remaining gap */
+                margin-top: -0.1em; /* Tighter vertical containment */
+            }
+            
+            .subtitle {
+                font-family: 'Satoshi', sans-serif;
+                font-weight: 500; /* Medium weight */
+                font-size: var(--font-size-xl);
+                color: var(--color-text-medium);
+                margin-top: var(--space-s);
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+            }
 
 			.i-container {
 				display: inline-block;
