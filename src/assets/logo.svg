@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="300" height="300">
+  <g stroke="#F97316" fill="none" stroke-linecap="round">
+    
+    <g transform="rotate(-45, 60, 60)">
+      
+      <!-- STREFA CHAOSU (Wejście - Lewa strona) -->
+      <!-- Linie są cieńsze (stroke-width="3") -->
+      <g stroke-width="3">
+        
+        <!-- Górna linia: długa, kończy się przed kołem -->
+        <line x1="8" y1="45" x2="38" y2="45" />
+        
+        <!-- Środkowa linia: "CHAOS" - przesunięta w lewo -->
+        <!-- Kreska początkowa -->
+        <line x1="2" y1="60" x2="18" y2="60" />
+        <!-- Pierwsza cząsteczka danych (kropka) -->
+        <line x1="25" y1="60" x2="25.1" y2="60" stroke-width="4" /> 
+        <!-- Druga cząsteczka danych (kropka) - teraz wyraźnie przed kołem -->
+        <line x1="33" y1="60" x2="33.1" y2="60" stroke-width="4" />
+        
+        <!-- Dolna linia: zaczyna się później -->
+        <line x1="15" y1="75" x2="38" y2="75" />
+      </g>
+
+      <!-- PROCESOR (Filtr) -->
+      <!-- Solidne koło -->
+      <circle cx="60" cy="60" r="17" stroke-width="5" />
+
+      <!-- STREFA PORZĄDKU (Wyjście - Prawa strona) -->
+      <!-- Bardzo gruba linia (stroke-width="8") -->
+      <line x1="78" y1="60" x2="115" y2="60" stroke-width="4" />
+      
+    </g>
+  </g>
+</svg>

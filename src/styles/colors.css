@@ -1,0 +1,69 @@
+/* 
+  Colors generated from .ai/UI/colors.md 
+  Architektura Koloru w Interfejsach Przemysłowych
+*/
+
+:root {
+  /* --- Surface Elevation (Navy Base) --- */
+  /* Główne tło strony */
+  --elevation-0: #080C14;
+  /* Karty, kontenery treści */
+  --elevation-1: #1A222F;
+  /* Dialogi, popovery */
+  --elevation-2: #1E2736;
+  /* Modale, nawigacja górna */
+  --elevation-3: #222C3D;
+  /* Stany hover, tooltips */
+  --elevation-4: #273145;
+  /* Przyciski akcji (FAB) */
+  --elevation-6: #303B52;
+
+  /* --- Primary & Interaction --- */
+  /* Branding strukturalny, nawigacja boczna (Deep Navy) */
+  --color-primary: #0A192F;
+  /* Przyciski główne, stany aktywne (Electric Blue) */
+  --color-primary-light: #1E90FF;
+  /* CTA, paski postępu, kluczowe wyróżnienia (Vibrant Orange) */
+  --color-accent: #F97316;
+  /* Stan hover dla przycisków CTA (Burnt Orange) */
+  --color-accent-hover: #EA580C;
+  /* Tło dla pomarańczowych etykiet/tagów (Peach Tint) */
+  --color-accent-muted: #FED7AA;
+
+  /* --- Neutral Surfaces --- */
+  /* Główne tło aplikacji (Midnight Navy) */
+  --color-background-1: #080C14;
+  /* Obszary drugorzędne (np. sidebar) (Slate Navy) */
+  --color-background-2: #111827;
+  /* Karty, elementy listy, widżety dashboardu (Elevated Navy) */
+  --color-surface: #1F2937;
+  /* Subtelne dzielniki, obramowania komponentów (Muted Slate) */
+  --color-border: #374151;
+
+  /* --- Semantic Status --- */
+  /* System online, nadwyżka produkcji (Emerald Green) */
+  --color-status-success: #10B981;
+  /* Niski poziom baterii, wymagana konserwacja (Amber Gold) */
+  --color-status-warning: #F59E0B;
+  /* Awaria sieci, błąd krytyczny systemu (Crimson Red) */
+  --color-status-danger: #EF4444;
+  /* Nadpisania ręczne, logi neutralne (Sky Blue) */
+  --color-status-info: #0EA5E9;
+
+  /* --- Typography Base Colors --- */
+  /* High Emphasis (Snow White) */
+  --color-text-high: #F9FAFB;
+  /* Medium Emphasis (Light Grey) */
+  --color-text-medium: #D1D5DB;
+  /* Disabled Text (Muted Grey) */
+  --color-text-disabled: #9CA3AF;
+
+  /* --- Typography Opacities --- */
+  --opacity-text-high: 0.87;
+  --opacity-text-medium: 0.60;
+  --opacity-text-disabled: 0.38;
+
+  /* --- Design Tokens --- */
+  --color-action-primary: var(--color-accent);
+  --color-surface-base: var(--color-background-1);
+}
