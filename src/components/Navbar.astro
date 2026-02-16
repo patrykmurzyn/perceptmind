@@ -1,0 +1,64 @@
+---
+import { Image } from 'astro:assets';
+import logoWhite from '../assets/logo_white.svg';
+---
+
+<nav class="navbar">
+  <div class="logo-container">
+    <a href="/" aria-label="Home">
+      <Image src={logoWhite} alt="PerceptMind Logo" class="logo" loading="eager" />
+    </a>
+  </div>
+  <div class="nav-links">
+    <a href="#contact" class="nav-link">Contact</a>
+  </div>
+</nav>
+
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-s) var(--space-l); /* Broad horizontal spacing */
+    z-index: 1000;
+    
+    /* Glassmorphism */
+    background: rgba(8, 12, 20, 0.5); /* Semi-transparent base */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .logo {
+    height: var(--space-l); /* ~2.5rem */
+    width: auto;
+    display: block;
+  }
+
+  .nav-link {
+    font-family: 'Satoshi', sans-serif;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    color: var(--color-text-high);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+    padding: var(--space-2xs) var(--space-xs); /* Hit area */
+  }
+
+  .nav-link:hover {
+    color: var(--color-accent);
+  }
+  
+  /* Responsive adjustments if needed */
+  @media (max-width: 768px) {
+    .navbar {
+        padding: var(--space-s) var(--space-m);
+    }
+  }
+</style>

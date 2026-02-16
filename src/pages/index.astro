@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
 import NeuralBackground from '../components/NeuralBackground.astro';
+import Navbar from '../components/Navbar.astro';
+import Contact from '../components/Contact.astro';
 ---
 
 <html lang="en">
@@ -12,6 +14,7 @@ import NeuralBackground from '../components/NeuralBackground.astro';
 		<title>PerceptMind</title>
 	</head>
 	<body>
+        <Navbar />
         <NeuralBackground />
 		<main>
 			<h1 class="title title-top">Percept</h1>
@@ -20,6 +23,7 @@ import NeuralBackground from '../components/NeuralBackground.astro';
 			</h1>
             <h2 class="subtitle">AI Solutions for Business</h2>
 		</main>
+        <Contact />
 
 		<script>
 			import { gsap } from "gsap";
