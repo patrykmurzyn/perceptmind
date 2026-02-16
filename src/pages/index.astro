@@ -1,167 +1,243 @@
 ---
-import '../styles/global.css';
+import Layout from '../layouts/Layout.astro';
 import NeuralBackground from '../components/NeuralBackground.astro';
 import Navbar from '../components/Navbar.astro';
 import Contact from '../components/Contact.astro';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>PerceptMind</title>
-	</head>
-	<body>
-        <Navbar />
-        <NeuralBackground />
-		<main>
-			<h1 class="title title-top">Percept</h1>
-			<h1 class="title title-bottom">
-				M<span class="i-container"><span class="i" id="mind-i">i</span></span>nd
-			</h1>
-            <h2 class="subtitle">AI Solutions for Business</h2>
-		</main>
-        <Contact />
+<Layout
+  title="PerceptMind | AI Solutions for Business"
+  description="PerceptMind helps businesses deliver measurable outcomes with practical AI solutions."
+  canonicalUrl="https://perceptmind.com/"
+  ogImage="/favicon.svg"
+>
+  <Navbar />
+  <NeuralBackground />
 
-		<script>
-			import { gsap } from "gsap";
-			
-			// Initial entrance timeline
-			const tl = gsap.timeline();
+  <main>
+    <h1 class="title title-top">Percept</h1>
+    <h1 class="title title-bottom">
+      M<span class="i-container"><span class="i" id="mind-i">!</span></span>nd
+    </h1>
+    <h2 class="subtitle">
+      <span class="subtitle-text">AI Solutions for Business</span>
+      <svg
+        class="subtitle-scribble"
+        viewBox="0 0 620 44"
+        aria-hidden="true"
+        focusable="false"
+        preserveAspectRatio="none"
+      >
+        <path class="subtitle-scribble-path" d="M4 22 C 132 36, 280 12, 418 24 S 548 30, 614 20" />
+      </svg>
+    </h2>
+  </main>
 
-			// Initial state: The 'i' starts as '!' (inverted and orange)
-			gsap.set("#mind-i", { 
-                display: "inline-block", 
-                transformOrigin: "center center",
-                rotationX: 180,
-                color: "var(--color-accent)"
-            });
+  <Contact />
 
-			// Fade in global elements
-			gsap.to("body", { autoAlpha: 1, duration: 0.5 });
-			
-			// Initial reveal of title and subtitle
-			gsap.from(".title", {
-				y: 50,
-				opacity: 0,
-				duration: 1,
-				stagger: 0.2
-			});
-            
-            gsap.from(".subtitle", {
-                y: 20,
-                opacity: 0,
-                duration: 1,
-                delay: 0.5
-            });
+  <script>
+    import { gsap } from 'gsap';
 
-            // Random Periodic Animation
-            // Goal: Every ~30s (randomized), flip ! to i, hold 2s, flip back.
-            
-            const iElement = document.getElementById('mind-i');
+    const iElement = document.getElementById('mind-i') as HTMLSpanElement | null;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-            function flipToIAndBack() {
-                if (!iElement) return;
+    if (!iElement) {
+      console.warn('Animated title element not found.');
+    } else if (prefersReducedMotion) {
+      gsap.set(iElement, {
+        display: 'inline-block',
+        transformOrigin: 'center center',
+        rotationX: 0,
+        color: 'var(--color-accent)'
+      });
+    } else {
+      const mindChar = iElement;
 
-                const flipDuration = 0.5;
-                const holdDuration = 2; // User requested 2 seconds
+      gsap.set(mindChar, {
+        display: 'inline-block',
+        transformOrigin: 'center center',
+        rotationX: 0,
+        color: 'var(--color-accent)'
+      });
 
-                const tl = gsap.timeline({
-                    onComplete: () => {
-                        // Reset to initial state (180deg) invisibly so the next cycle can start cleanly
-                        // 540deg is visually same as 180deg (1.5 turns vs 0.5 turns)
-                        gsap.set(iElement, { rotationX: 180 });
-                        scheduleNextFlip();
-                    }
-                });
+      gsap.to('body', { autoAlpha: 1, duration: 0.5 });
 
-                // 1. Flip to 'i' (White, 360deg - effectively 0 visually)
-                // We go from 180 -> 360 to continue the rotation direction, instead of going back to 0
-                tl.to(iElement, {
-                    rotationX: 360,
-                    color: "var(--color-text-high)",
-                    duration: flipDuration,
-                    ease: "power2.inOut"
-                })
-                // 2. Hold
-                .to(iElement, {
-                    duration: holdDuration
-                })
-                // 3. Flip back to '!' (Orange, 540deg - effectively 180 visually)
-                // Continue rotation in same direction (360 -> 540)
-                .to(iElement, {
-                    rotationX: 540,
-                    color: "var(--color-accent)",
-                    duration: flipDuration,
-                    ease: "power2.inOut"
-                });
-            }
+      gsap.from('.title', {
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        stagger: 0.2
+      });
 
-            function scheduleNextFlip() {
-                // "Raz na jakiś czas powiedzmy raz na 30 sekund w losowym momencie"
-                // Random interval between 20s and 40s
-                const randomDelay = Math.random() * 20 + 20; 
-                
-                gsap.delayedCall(randomDelay, flipToIAndBack);
-            }
+      gsap.from('.subtitle', {
+        y: 20,
+        opacity: 0,
+        duration: 1,
+        delay: 0.5
+      });
 
-            // Start the cycle with an initial random delay so it doesn't happen immediately
-            gsap.delayedCall(Math.random() * 5 + 2, scheduleNextFlip);
-		</script>
+      gsap.fromTo(
+        '.subtitle-scribble-path',
+        {
+          strokeDasharray: 700,
+          strokeDashoffset: 700
+        },
+        {
+          strokeDashoffset: 0,
+          duration: 1.05,
+          ease: 'power2.out',
+          delay: 0.9
+        }
+      );
 
-		<style>
-			main {
-				display: flex;
-				flex-direction: column;
-				justify-content: center;
-				align-items: center;
-				height: 100vh;
-				width: 100%;
-                gap: var(--space-3xs); /* Slight gap between lines */
-			}
+      let pendingCall: gsap.core.Tween | null = null;
 
-			.title {
-				font-family: 'Satoshi', sans-serif;
-				font-weight: 900; /* Black weight */
-				font-size: var(--font-size-6xl);
-				line-height: 1.1;
-				margin: 0;
-				letter-spacing: -0.02em;
-				color: var(--color-text-high);
-				text-transform: none;
-                position: relative;
-			}
-            
-            .title-top {
-                right: 0.0em; /* Shift Percept Left (Increased from 0.55em) */
-            }
-            
-            .title-bottom {
-                left: -0.077em; /* Shift Mind Right to close the remaining gap */
-                margin-top: -0.1em; /* Tighter vertical containment */
-            }
-            
-            .subtitle {
-                font-family: 'Satoshi', sans-serif;
-                font-weight: 500; /* Medium weight */
-                font-size: var(--font-size-xl);
-                color: var(--color-text-medium);
-                margin-top: var(--space-s);
-                letter-spacing: 0.05em;
-                text-transform: uppercase;
-            }
+      function scheduleNextFlip() {
+        const randomDelay = Math.random() * 20 + 20;
+        pendingCall = gsap.delayedCall(randomDelay, flipToIAndBack);
+      }
 
-			.i-container {
-				display: inline-block;
-				position: relative;
-			}
-            
-            .i {
-                display: inline-block;
-                transform-style: preserve-3d;
-            }
-		</style>
-	</body>
-</html>
+      function flipToIAndBack() {
+        const flipDuration = 0.5;
+        const holdDuration = 2;
+
+        gsap.timeline({
+          onComplete: () => {
+            scheduleNextFlip();
+          }
+        })
+          .to(mindChar, {
+            rotationX: 90,
+            duration: flipDuration / 2,
+            ease: 'power2.inOut'
+          })
+          .add(() => {
+            mindChar.textContent = 'i';
+            gsap.set(mindChar, { rotationX: -90, color: 'var(--color-text-high)' });
+          })
+          .to(mindChar, {
+            rotationX: 0,
+            duration: flipDuration / 2,
+            ease: 'power2.inOut'
+          })
+          .to(mindChar, {
+            duration: holdDuration
+          })
+          .to(mindChar, {
+            rotationX: 90,
+            duration: flipDuration / 2,
+            ease: 'power2.inOut'
+          })
+          .add(() => {
+            mindChar.textContent = '!';
+            gsap.set(mindChar, { rotationX: -90, color: 'var(--color-accent)' });
+          })
+          .to(mindChar, {
+            rotationX: 0,
+            duration: flipDuration / 2,
+            ease: 'power2.inOut'
+          });
+      }
+
+      pendingCall = gsap.delayedCall(Math.random() * 5 + 2, scheduleNextFlip);
+
+      window.addEventListener('beforeunload', () => {
+        pendingCall?.kill();
+      });
+    }
+  </script>
+
+  <style>
+    main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      gap: var(--space-3xs);
+    }
+
+    .title {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 900;
+      font-size: var(--font-size-6xl);
+      line-height: 1.1;
+      margin: 0;
+      letter-spacing: -0.02em;
+      color: var(--color-text-high);
+      text-transform: none;
+      position: relative;
+    }
+
+    .title-top {
+      right: 0;
+    }
+
+    .title-bottom {
+      left: -0.117em;
+      margin-top: -0.1em;
+    }
+
+    .subtitle {
+      font-family: 'Satoshi', sans-serif;
+      font-weight: 500;
+      font-size: var(--font-size-xl);
+      color: var(--color-text-medium);
+      margin-top: var(--space-s);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-align: center;
+      padding-inline: var(--space-m);
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.16em;
+    }
+
+    .subtitle-text {
+      display: inline-block;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle-scribble {
+      width: min(36rem, 100%);
+      height: 1rem;
+      overflow: visible;
+    }
+
+    .subtitle-scribble-path {
+      fill: none;
+      stroke: var(--color-accent);
+      stroke-width: 3.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.72;
+      filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.24));
+    }
+
+    .i-container {
+      display: inline-block;
+      position: relative;
+    }
+
+    .i {
+      display: inline-block;
+      transform-style: preserve-3d;
+      transform-origin: center center;
+      color: var(--color-accent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .i {
+        transform: none;
+      }
+
+      .subtitle-scribble-path {
+        stroke-dasharray: none;
+        stroke-dashoffset: 0;
+      }
+    }
+  </style>
+</Layout>

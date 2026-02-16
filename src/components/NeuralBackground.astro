@@ -1,202 +1,268 @@
 ---
 ---
 
-<div id="neural-bg" class="neural-bg">
+<div id="neural-bg" class="neural-bg" aria-hidden="true">
   <svg id="neural-svg" width="100%" height="100%"></svg>
 </div>
 
 <script>
-  import { gsap } from "gsap";
+  import { gsap } from 'gsap';
 
-  interface Node {
+  interface NodeData {
     id: string;
     element: SVGCircleElement;
     layerIndex: number;
-    index: number;
     x: number;
     y: number;
-    connections: Connection[]; 
+    connections: ConnectionData[];
   }
 
-  interface Connection {
+  interface ConnectionData {
     line: SVGLineElement;
-    toNode: Node;
+    toNode: NodeData;
   }
 
-  const container = document.getElementById('neural-bg');
-  const svg = document.getElementById('neural-svg');
+  const container = document.getElementById('neural-bg') as HTMLDivElement | null;
+  const svg = document.getElementById('neural-svg') as SVGSVGElement | null;
 
   if (!container || !svg) {
-      throw new Error("Neural background elements not found");
-  }
+    console.warn('Neural background elements not found. Skipping background animation.');
+  } else {
+    const svgElement = svg;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const maxDepth = 4;
+    const maxConcurrentPackets = 32;
+    const baseLineStroke = 'var(--color-border)';
+    const baseLineOpacity = '0.06';
+    let activePackets = 0;
+    let pulseInterval: number | undefined;
+    let resizeTimeout: number | undefined;
+    let nodes: NodeData[] = [];
 
-  // Configuration for Top-to-Bottom flow
-  // More layers (rows) to cover height, more nodes per row to cover width
-  const layersConfig = [15, 20, 20, 20, 15]; 
-  const nodes: Node[] = [];
+    const linesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    const nodesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    svgElement.appendChild(linesGroup);
+    svgElement.appendChild(nodesGroup);
 
-  const linesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  svg.appendChild(linesGroup);
+    function getLayersConfig() {
+      return window.innerWidth < 768 ? [8, 10, 10, 8] : [12, 16, 16, 16, 12];
+    }
 
-  const nodesGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-  svg.appendChild(nodesGroup);
+    function clearGraph() {
+      gsap.killTweensOf(linesGroup.querySelectorAll('*'));
+      gsap.killTweensOf(nodesGroup.querySelectorAll('*'));
+      gsap.killTweensOf(svgElement.querySelectorAll('circle[data-packet="true"]'));
+      linesGroup.replaceChildren();
+      nodesGroup.replaceChildren();
+      Array.from(svgElement.querySelectorAll('circle[data-packet="true"]')).forEach((packet) =>
+        packet.remove()
+      );
+      nodes = [];
+      activePackets = 0;
+    }
 
-  const width = window.innerWidth;
-  const height = window.innerHeight;
+    function buildGraph() {
+      clearGraph();
 
-  // 1. Create Nodes (Rows from Top to Bottom)
-  layersConfig.forEach((count, layerIndex) => {
-      // Row position (Y axis)
-      // Distribute evenly from top (-5%) to bottom (105%) to cover edges
-      const layerY = (height / (layersConfig.length - 1)) * layerIndex;
-      
-      for (let i = 0; i < count; i++) {
-          const node = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-          
-          // Horizontal distribution (X axis)
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const layersConfig = getLayersConfig();
+      svgElement.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+      layersConfig.forEach((count, layerIndex) => {
+        const layerY = (height / (layersConfig.length - 1)) * layerIndex;
+
+        for (let i = 0; i < count; i++) {
+          const node = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
           const spacingX = width / count;
-          const jitterX = (Math.random() - 0.5) * spacingX * 0.8;
+          const jitterX = (Math.random() - 0.5) * spacingX * 0.6;
           const cx = (width / (count + 1)) * (i + 1) + jitterX;
-          
-          // Vertical jitter
-          const jitterY = (Math.random() - 0.5) * 30;
+          const jitterY = (Math.random() - 0.5) * 22;
           const cy = layerY + jitterY;
 
-          node.setAttribute("cx", cx.toString());
-          node.setAttribute("cy", cy.toString());
-          node.setAttribute("r", "2"); // Smaller nodes
-          node.setAttribute("fill", "var(--color-surface)"); 
-          node.setAttribute("stroke", "var(--color-primary-light)");
-          node.setAttribute("stroke-width", "0.5"); // Thinner stroke
-          node.setAttribute("opacity", "0.2"); // Much more subtle
-          
+          node.setAttribute('cx', cx.toString());
+          node.setAttribute('cy', cy.toString());
+          node.setAttribute('r', '1.8');
+          node.setAttribute('fill', 'var(--color-surface)');
+          node.setAttribute('stroke', 'var(--color-primary-light)');
+          node.setAttribute('stroke-width', '0.45');
+          node.setAttribute('opacity', '0.2');
           nodesGroup.appendChild(node);
 
           nodes.push({
-              id: `l${layerIndex}-n${i}`,
-              element: node,
-              layerIndex,
-              index: i,
-              x: cx,
-              y: cy,
-              connections: []
+            id: `l${layerIndex}-n${i}`,
+            element: node,
+            layerIndex,
+            x: cx,
+            y: cy,
+            connections: []
           });
-      }
-  });
+        }
+      });
 
-  // 2. Create Connections between layers
-  nodes.forEach(sourceNode => {
-      const nextLayerNodes = nodes.filter(n => n.layerIndex === sourceNode.layerIndex + 1);
-      
-      // Connect to nearby nodes in the next layer
-      nextLayerNodes.forEach(targetNode => {
-          // Calculate distance to filter only reasonable connections
+      nodes.forEach((sourceNode) => {
+        const nextLayerNodes = nodes.filter((n) => n.layerIndex === sourceNode.layerIndex + 1);
+
+        nextLayerNodes.forEach((targetNode) => {
           const dx = sourceNode.x - targetNode.x;
-          // Only connect if horizontally close-ish to avoid distinct "cross-screen" lines
-          if (Math.abs(dx) < width / 5) { 
-              if (Math.random() > 0.6) { // 40% chance if close enough
-                  const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                  
-                  line.setAttribute("x1", sourceNode.x.toString());
-                  line.setAttribute("y1", sourceNode.y.toString());
-                  line.setAttribute("x2", targetNode.x.toString());
-                  line.setAttribute("y2", targetNode.y.toString());
-                  
-                  line.setAttribute("stroke", "var(--color-border)");
-                  line.setAttribute("stroke-width", "0.5");
-                  line.setAttribute("opacity", "0.05"); // Extremely faint
-                  
-                  linesGroup.appendChild(line);
-                  
-                  sourceNode.connections.push({
-                      line: line,
-                      toNode: targetNode
-                  });
-              }
+          if (Math.abs(dx) < width / 5 && Math.random() > 0.68) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', sourceNode.x.toString());
+            line.setAttribute('y1', sourceNode.y.toString());
+            line.setAttribute('x2', targetNode.x.toString());
+            line.setAttribute('y2', targetNode.y.toString());
+            line.setAttribute('stroke', baseLineStroke);
+            line.setAttribute('stroke-width', '0.45');
+            line.setAttribute('opacity', baseLineOpacity);
+            linesGroup.appendChild(line);
+
+            sourceNode.connections.push({
+              line,
+              toNode: targetNode
+            });
           }
+        });
       });
-  });
+    }
 
-  // 3. Signal Propagation Animation
-  function sendPulse() {
-      // Pick random start nodes from top layer
-      const inputNodes = nodes.filter(n => n.layerIndex === 0);
-      // Fire multiple simultaneous inputs for "busy" feel but slow speed
-      const startNode = inputNodes[Math.floor(Math.random() * inputNodes.length)];
-      activateNode(startNode);
-  }
-
-  function activateNode(node: Node) {
-      if (!node) return;
-
-      // 1. Subtle flash
-      gsap.to(node.element, {
-          fill: "var(--color-accent)",
-          stroke: "var(--color-accent)",
-          scale: 1.2, // Smaller scale up
-          duration: 0.5, // Slower flash
-          opacity: 0.8,
-          yoyo: true,
-          repeat: 1,
-          ease: "power1.inOut",
-          onComplete: () => {
-              gsap.to(node.element, {
-                  fill: "var(--color-surface)",
-                  stroke: "var(--color-primary-light)",
-                  scale: 1,
-                  duration: 0.5,
-                  opacity: 0.2 // Return to base opacity
-              });
-          }
-      });
-
-      // 2. Propagate
-      if (node.connections.length > 0) {
-          const activeConnections = node.connections.filter(() => Math.random() > 0.6); // Fewer paths
-          
-          activeConnections.forEach(conn => {
-              const packet = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-              packet.setAttribute("r", "1.5");
-              packet.setAttribute("fill", "var(--color-primary-light)");
-              packet.setAttribute("opacity", "0.6");
-              if (svg) svg.appendChild(packet);
-
-              // Highlight line very subtly
-              gsap.to(conn.line, {
-                  stroke: "var(--color-primary-light)",
-                  opacity: 0.2,
-                  duration: 1,
-                  yoyo: true,
-                  repeat: 1
-              });
-             
-              // Animate packet - Slower
-              gsap.fromTo(packet, 
-                  { cx: node.x, cy: node.y },
-                  { 
-                      cx: conn.toNode.x, 
-                      cy: conn.toNode.y, 
-                      duration: 1.5 + Math.random(), // 1.5s - 2.5s travel time per segment
-                      ease: "power1.inOut",
-                      onComplete: () => {
-                          packet.remove();
-                          activateNode(conn.toNode);
-                      }
-                  }
-              );
-          });
+    function activateNode(node: NodeData, depth = 0) {
+      if (!node || depth > maxDepth || prefersReducedMotion) {
+        return;
       }
+
+      gsap.to(node.element, {
+        fill: 'var(--color-accent)',
+        stroke: 'var(--color-accent)',
+        scale: 1.15,
+        duration: 0.35,
+        opacity: 0.85,
+        yoyo: true,
+        repeat: 1,
+        ease: 'power1.inOut',
+        onComplete: () => {
+          gsap.to(node.element, {
+            fill: 'var(--color-surface)',
+            stroke: 'var(--color-primary-light)',
+            scale: 1,
+            duration: 0.35,
+            opacity: 0.2
+          });
+        }
+      });
+
+      if (!node.connections.length) {
+        return;
+      }
+
+      const sortedConnections = [...node.connections]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+
+      const sampledConnections = sortedConnections.filter(() => Math.random() > 0.4);
+      const chosenConnections = sampledConnections.length > 0 ? sampledConnections : [sortedConnections[0]];
+
+      chosenConnections.forEach((conn, index) => {
+        // Always allow at least one output if the node has any connection.
+        if (activePackets >= maxConcurrentPackets && index > 0) {
+          return;
+        }
+
+        const packet = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        packet.setAttribute('r', '1.4');
+        packet.setAttribute('fill', 'var(--color-primary-light)');
+        packet.setAttribute('opacity', '0.6');
+        packet.setAttribute('data-packet', 'true');
+        svgElement.appendChild(packet);
+
+        activePackets += 1;
+
+        gsap.killTweensOf(conn.line);
+        gsap.fromTo(
+          conn.line,
+          { stroke: baseLineStroke, opacity: Number(baseLineOpacity) },
+          {
+            stroke: 'var(--color-primary-light)',
+            opacity: 0.24,
+            duration: 0.32,
+            yoyo: true,
+            repeat: 1,
+            overwrite: 'auto',
+            onComplete: () => {
+              conn.line.setAttribute('stroke', baseLineStroke);
+              conn.line.setAttribute('opacity', baseLineOpacity);
+            }
+          }
+        );
+
+        gsap.fromTo(
+          packet,
+          { cx: node.x, cy: node.y },
+          {
+            cx: conn.toNode.x,
+            cy: conn.toNode.y,
+            duration: 1 + Math.random() * 0.5,
+            ease: 'power1.inOut',
+            onComplete: () => {
+              packet.remove();
+              activePackets = Math.max(0, activePackets - 1);
+              activateNode(conn.toNode, depth + 1);
+            }
+          }
+        );
+      });
+    }
+
+    function sendPulse() {
+      const inputNodes = nodes.filter((n) => n.layerIndex === 0);
+      if (!inputNodes.length) {
+        return;
+      }
+
+      const startNode = inputNodes[Math.floor(Math.random() * inputNodes.length)];
+      activateNode(startNode, 0);
+    }
+
+    function stopPulseLoop() {
+      if (pulseInterval) {
+        window.clearInterval(pulseInterval);
+      }
+      pulseInterval = undefined;
+    }
+
+    function startPulseLoop() {
+      stopPulseLoop();
+      if (!prefersReducedMotion) {
+        pulseInterval = window.setInterval(sendPulse, 2600);
+      }
+    }
+
+    buildGraph();
+    startPulseLoop();
+
+    window.addEventListener('resize', () => {
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
+      resizeTimeout = window.setTimeout(() => {
+        buildGraph();
+      }, 180);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopPulseLoop();
+      } else {
+        startPulseLoop();
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      stopPulseLoop();
+      if (resizeTimeout) {
+        window.clearTimeout(resizeTimeout);
+      }
+    });
   }
-
-  // Slower interval
-  setInterval(sendPulse, 2000); 
-  
-  let resizeTimeout: number;
-  window.addEventListener('resize', () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = window.setTimeout(() => location.reload(), 500);
-  });
-
 </script>
 
 <style>
@@ -209,14 +275,18 @@
     z-index: -1;
     pointer-events: none;
     overflow: hidden;
-    /* Optional: subtle radial gradient to focus attention to center */
     background: radial-gradient(circle at center, transparent 0%, var(--elevation-0) 100%);
   }
-  
-  /* Ensure SVG fills container */
+
   svg {
-      display: block;
-      width: 100%;
-      height: 100%;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .neural-bg {
+      opacity: 0.45;
+    }
   }
 </style>

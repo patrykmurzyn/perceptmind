@@ -23,18 +23,16 @@ import logoWhite from '../assets/logo_white.svg';
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-s) var(--space-l); /* Broad horizontal spacing */
+    padding: var(--space-s) var(--space-l);
     z-index: 1000;
-    
-    /* Glassmorphism */
-    background: rgba(8, 12, 20, 0.5); /* Semi-transparent base */
+    background: rgba(8, 12, 20, 0.5);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .logo {
-    height: var(--space-l); /* ~2.5rem */
+    height: var(--space-l);
     width: auto;
     display: block;
   }
@@ -48,17 +46,23 @@ import logoWhite from '../assets/logo_white.svg';
     text-transform: uppercase;
     letter-spacing: 0.05em;
     transition: color 0.3s ease;
-    padding: var(--space-2xs) var(--space-xs); /* Hit area */
+    padding: var(--space-2xs) var(--space-xs);
+    border-radius: 9999px;
   }
 
   .nav-link:hover {
     color: var(--color-accent);
   }
-  
-  /* Responsive adjustments if needed */
+
+  .nav-link:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    color: var(--color-accent);
+  }
+
   @media (max-width: 768px) {
     .navbar {
-        padding: var(--space-s) var(--space-m);
+      padding: var(--space-s) var(--space-m);
     }
   }
 </style>

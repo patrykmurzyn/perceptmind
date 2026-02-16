@@ -4,12 +4,8 @@
 <section id="contact" class="contact-section">
   <div class="content-wrapper">
     <h2 class="contact-title">Get in Touch</h2>
-    <p class="contact-text">
-      Ready to transform your business with AI?
-    </p>
-    <a href="mailto:contact@perceptmind.com" class="contact-button">
-      contact@perceptmind.com
-    </a>
+    <p class="contact-text">Ready to transform your business with AI?</p>
+    <a href="mailto:contact@perceptmind.com" class="contact-button">contact@perceptmind.com</a>
   </div>
 </section>
 
@@ -17,11 +13,11 @@
   .contact-section {
     position: relative;
     width: 100%;
-    min-height: 50vh; /* Takes up significant space */
+    min-height: 50vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: var(--elevation-1); /* Slightly lighter than main bg */
+    background-color: var(--elevation-1);
     color: var(--color-text-high);
     padding: var(--space-2xl) var(--space-l);
     text-align: center;
@@ -61,14 +57,21 @@
     font-size: var(--font-size-lg);
     font-weight: 500;
     text-decoration: none;
-    border-radius: 9999px; /* Pill shape */
+    border-radius: 9999px;
     transition: all 0.3s ease;
   }
 
   .contact-button:hover {
     background-color: var(--color-accent);
     color: var(--color-text-high);
-    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3); /* Glow effect */
+    box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+  }
+
+  .contact-button:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    background-color: var(--color-accent);
+    color: var(--color-text-high);
   }
 
   @media (max-width: 768px) {

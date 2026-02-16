@@ -6,6 +6,9 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "check": "npm run lint && npm run build",
+    "lint": "npx tsc --noEmit --pretty false",
+    "test": "npm run build",
     "astro": "astro"
   },
   "dependencies": {

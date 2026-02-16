@@ -1,46 +1,50 @@
-# Astro Starter Kit: Basics
+# PerceptMind
+
+Marketing landing page built with Astro and GSAP.
+
+## Tech stack
+
+- Astro 5
+- TypeScript (strict Astro config)
+- GSAP animations
+- Custom design tokens (`src/styles/colors.css`, `src/styles/sizes.css`)
+
+## Local development
 
 ```sh
-npm create astro@latest -- --template basics
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## Quality checks
 
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
-/
-├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
+```sh
+npm run check
+npm run lint
+npm run test
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## Build and preview
 
-## 🧞 Commands
+```sh
+npm run build
+npm run preview
+```
 
-All commands are run from the root of the project, from a terminal:
+## Project structure
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+- `src/layouts/Layout.astro` - global HTML shell and SEO meta tags
+- `src/pages/index.astro` - hero section and page-level animation logic
+- `src/components/NeuralBackground.astro` - animated SVG neural background
+- `src/components/Navbar.astro` - fixed top navigation
+- `src/components/Contact.astro` - contact CTA section
+- `src/styles/global.css` - global styles and font-face declarations
+- `src/styles/colors.css` - color tokens
+- `src/styles/sizes.css` - typography and spacing tokens
 
-## 👀 Want to learn more?
+## Performance and accessibility notes
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Respects `prefers-reduced-motion` in both hero and background animations.
+- Background animation uses bounded propagation depth and packet concurrency.
+- Keyboard focus styles are enabled for interactive links.
+- Font loading uses `woff2` (+ `otf` fallback), `font-display: swap`, and preloaded critical weights.
