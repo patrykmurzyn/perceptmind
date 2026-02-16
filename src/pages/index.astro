@@ -1,11 +1,101 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import '../styles/global.css';
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>PerceptMind</title>
+	</head>
+	<body>
+		<main>
+			<h1 class="title">Percept</h1>
+			<h1 class="title">
+				M<span class="i-container"><span class="i" id="mind-i">i</span></span>nd
+			</h1>
+		</main>
+
+		<script>
+			import { gsap } from "gsap";
+			
+			// Initial entrance timeline
+			const tl = gsap.timeline();
+
+			// Initial state set in CSS to avoid FOUC, but ensuring here
+			gsap.set("#mind-i", { display: "inline-block", transformOrigin: "center center" });
+
+			// Fade in global elements
+			gsap.to("body", { autoAlpha: 1, duration: 0.5 });
+			
+			// Initial reveal of title
+			gsap.from(".title", {
+				y: 50,
+				opacity: 0,
+				duration: 1,
+				stagger: 0.2
+			});
+
+			// The 'i' animation loop
+            const iTween = gsap.timeline({ 
+                repeat: -1, 
+                defaults: { ease: "power2.inOut", duration: 0.6 } 
+            });
+
+            // 1. Initial delay then animate to Inverted (Orange, 180deg)
+            iTween.to("#mind-i", {
+                rotationX: 180,
+                color: "var(--color-accent)",
+                delay: 2 
+            })
+            // 2. Hold for 30s (by adding a dummy tween or delay to the next tween)
+            .to("#mind-i", {
+                rotationX: 0,
+                color: "var(--color-text-high)",
+                delay: 30
+            })
+            // 3. Hold for 30s before repeating (which loops back to start)
+            .to("#mind-i", {
+                duration: 0, // Instant dummy tween to just add delay
+                delay: 30
+            });
+		</script>
+
+		<style>
+			main {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+				height: 100vh;
+				width: 100%;
+			}
+
+			.title {
+				font-family: 'Satoshi', sans-serif;
+				font-weight: 900; /* Black weight */
+				font-size: 8rem;
+				line-height: 1;
+				margin: 0;
+				letter-spacing: -0.02em;
+				color: var(--color-text-high);
+				text-transform: uppercase; /* Optional, user said 'Percept' and 'Mind' but large titles often look good uppercase, sticking to user input though which was Title Case in description but 'Percept' and 'Mind' in text. Let's stick to exactly what user asked: Percept and Mind */
+                text-transform: none;
+			}
+            
+            /* User asked for "Percept" and "Mind" specifically */
+
+			.i-container {
+				display: inline-block;
+				position: relative;
+			}
+            
+            .i {
+                display: inline-block;
+                transform-style: preserve-3d;
+            }
+		</style>
+	</body>
+</html>
