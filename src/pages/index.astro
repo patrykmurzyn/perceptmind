@@ -255,5 +255,29 @@ import Contact from '../components/Contact.astro';
 
 
     }
+
+    @media (max-width: 640px) {
+      .subtitle {
+        margin-top: var(--space-xs);
+        font-size: var(--font-size-lg);
+        letter-spacing: 0.03em;
+      }
+
+      .subtitle-content {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.1em;
+      }
+
+      .subtitle-content span:first-child {
+        white-space: nowrap;
+      }
+
+      .highlight-text {
+        width: 100%;
+        min-height: 1.25em;
+        text-align: center;
+      }
+    }
   </style>
 </Layout>
