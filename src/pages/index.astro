@@ -582,19 +582,36 @@ import Contact from '../components/Contact.astro';
       });
     }
 
+    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
+    const enablePanelSnap = !prefersReducedMotion && !isCoarsePointer;
+
     if (verticalStack && verticalTrack && verticalPanels.length > 1) {
+      const panelCount = verticalPanels.length;
       verticalScrollTween = gsap.to(verticalTrack, {
         x: () => -(verticalTrack.scrollWidth - window.innerWidth),
         ease: 'none',
+        force3D: true,
         scrollTrigger: {
           id: 'horizontal-stack-scroll',
           trigger: verticalStack,
           pin: true,
-          scrub: 1,
-          snap: 1 / (verticalPanels.length - 1),
+          scrub: 0.35,
+          snap: enablePanelSnap
+            ? {
+                snapTo: 1 / (panelCount - 1),
+                duration: { min: 0.08, max: 0.22 },
+                delay: 0.08,
+                ease: 'power1.out'
+              }
+            : undefined,
           start: 'top top',
-          end: () => `+=${window.innerWidth * (verticalPanels.length - 1)}`,
+          end: () =>
+            `+=${Math.max(
+              window.innerWidth * (panelCount - 1),
+              verticalTrack.scrollWidth - window.innerWidth
+            )}`,
           anticipatePin: 1,
+          fastScrollEnd: true,
           invalidateOnRefresh: true
         }
       });
@@ -693,6 +710,7 @@ import Contact from '../components/Contact.astro';
       width: 100%;
       overflow: hidden;
       position: relative;
+      overscroll-behavior: none;
     }
 
     .vertical-track {
@@ -701,6 +719,7 @@ import Contact from '../components/Contact.astro';
       width: 400vw;
       height: 100%;
       will-change: transform;
+      transform: translate3d(0, 0, 0);
     }
 
     .vertical-panel {
@@ -710,6 +729,7 @@ import Contact from '../components/Contact.astro';
       display: flex;
       align-items: center;
       justify-content: center;
+      contain: layout paint;
     }
 
     .vertical-panel h3 {
