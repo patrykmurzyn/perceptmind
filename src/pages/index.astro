@@ -20,16 +20,10 @@ import Contact from '../components/Contact.astro';
       M<span class="i-container"><span class="i" id="mind-i">!</span></span>nd
     </h1>
     <h2 class="subtitle">
-      <span class="subtitle-text">AI Solutions for Business</span>
-      <svg
-        class="subtitle-scribble"
-        viewBox="0 0 620 44"
-        aria-hidden="true"
-        focusable="false"
-        preserveAspectRatio="none"
-      >
-        <path class="subtitle-scribble-path" d="M4 22 C 132 36, 280 12, 418 24 S 548 30, 614 20" />
-      </svg>
+      <div class="subtitle-content">
+        <span>AI Solutions for</span>
+        <span id="changing-text" class="highlight-text">Business</span>
+      </div>
     </h2>
   </main>
 
@@ -76,19 +70,7 @@ import Contact from '../components/Contact.astro';
         delay: 0.5
       });
 
-      gsap.fromTo(
-        '.subtitle-scribble-path',
-        {
-          strokeDasharray: 700,
-          strokeDashoffset: 700
-        },
-        {
-          strokeDashoffset: 0,
-          duration: 1.05,
-          ease: 'power2.out',
-          delay: 0.9
-        }
-      );
+
 
       let pendingCall: gsap.core.Tween | null = null;
 
@@ -141,8 +123,46 @@ import Contact from '../components/Contact.astro';
 
       pendingCall = gsap.delayedCall(Math.random() * 5 + 2, scheduleNextFlip);
 
+      // Text rotation logic
+      const changingText = document.getElementById('changing-text');
+      const words = ["Growth", "Results", "Leaders", "Efficiency", "Success", "Challenges", "Scale", "Productivity", "Precision", "Speed", "Impact", "Tomorrow", "Builders", "Business", "Needs"];
+      let currentWordIndex = 0;
+      let textRotationCall: gsap.core.Tween | null = null;
+
+      if (changingText) {
+        // Set initial style
+        gsap.set(changingText, { display: 'inline-block' });
+
+        function rotateText() {
+          const nextWord = words[currentWordIndex];
+          currentWordIndex = (currentWordIndex + 1) % words.length;
+
+          gsap.to(changingText, {
+            y: -20,
+            opacity: 0,
+            duration: 0.5,
+            ease: 'power2.in',
+            onComplete: () => {
+              if (changingText) {
+                changingText.textContent = nextWord;
+                gsap.fromTo(changingText,
+                  { y: 20, opacity: 0 },
+                  { y: 0, opacity: 1, duration: 0.5, ease: 'power2.out' }
+                );
+              }
+            }
+          });
+          
+          textRotationCall = gsap.delayedCall(3.5, rotateText);
+        }
+
+        // Start the rotation loop after initial delay
+        textRotationCall = gsap.delayedCall(3.5, rotateText);
+      }
+
       window.addEventListener('beforeunload', () => {
         pendingCall?.kill();
+        textRotationCall?.kill();
       });
     }
   </script>
@@ -195,27 +215,21 @@ import Contact from '../components/Contact.astro';
       gap: 0.16em;
     }
 
-    .subtitle-text {
+    .subtitle-content {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3em; /* space between "for" and "Business" */
+    }
+
+
+
+    .highlight-text {
       display: inline-block;
-      position: relative;
-      z-index: 1;
+      width: 7.5em; /* Fixed width to accommodate longest word "Productivity" */
+      text-align: left;
     }
 
-    .subtitle-scribble {
-      width: min(36rem, 100%);
-      height: 1rem;
-      overflow: visible;
-    }
 
-    .subtitle-scribble-path {
-      fill: none;
-      stroke: var(--color-accent);
-      stroke-width: 6;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      opacity: 0.72;
-      filter: drop-shadow(0 0 4px rgba(249, 115, 22, 0.24));
-    }
 
     .i-container {
       display: inline-flex;
@@ -239,10 +253,7 @@ import Contact from '../components/Contact.astro';
         transform: none;
       }
 
-      .subtitle-scribble-path {
-        stroke-dasharray: none;
-        stroke-dashoffset: 0;
-      }
+
     }
   </style>
 </Layout>
