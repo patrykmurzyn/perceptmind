@@ -1,0 +1,199 @@
+---
+import { Image } from 'astro:assets';
+import logoWhite from '../assets/logo_white.svg';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-shell">
+    <div class="brand-block">
+      <a href="#hero" aria-label="PerceptMind home" class="brand-link">
+        <Image src={logoWhite} alt="PerceptMind" class="footer-logo" loading="lazy" />
+      </a>
+      <p class="brand-copy">
+        Practical AI systems that improve operations, security, and growth.
+      </p>
+    </div>
+
+    <div class="footer-column">
+      <h3 class="column-title">Contact</h3>
+      <a href="mailto:contact@perceptmind.com">contact@perceptmind.com</a>
+      <p class="column-note">Response time: up to 1 business day</p>
+    </div>
+
+    <nav class="footer-column" aria-label="Social media">
+      <h3 class="column-title">Follow us</h3>
+      <div class="social-links">
+        <a
+          href="https://x.com/perceptmind"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="social-link"
+          aria-label="PerceptMind on X"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="social-icon">
+            <path
+              d="M18.9 2H22l-6.8 7.8L23 22h-6.1l-4.8-6.2L6.7 22H3.6l7.3-8.4L1 2h6.2l4.4 5.8L18.9 2zM17.8 20h1.7L6.2 3.9H4.4L17.8 20z"
+              fill="currentColor"
+            ></path>
+          </svg>
+        </a>
+        <a
+          href="https://www.linkedin.com/company/perceptmind/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="social-link"
+          aria-label="PerceptMind on LinkedIn"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="social-icon">
+            <path
+              d="M6.94 8.5a1.72 1.72 0 1 1 0-3.44 1.72 1.72 0 0 1 0 3.44zM8.4 20H5.48V10.02H8.4V20zm11.12 0h-2.9v-4.86c0-1.16-.02-2.65-1.62-2.65-1.62 0-1.87 1.26-1.87 2.57V20h-2.9V10.02h2.78v1.36h.04c.39-.73 1.33-1.5 2.75-1.5 2.95 0 3.5 1.94 3.5 4.46V20z"
+              fill="currentColor"
+            ></path>
+          </svg>
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© {year} PerceptMind. All rights reserved.</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    width: 100%;
+    background:
+      radial-gradient(circle at 20% 0%, rgba(30, 144, 255, 0.14), rgba(8, 12, 20, 0) 45%),
+      linear-gradient(180deg, var(--elevation-0), #05080f);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: var(--space-xl) var(--space-m) var(--space-s);
+  }
+
+  .footer-shell {
+    width: min(1120px, 100%);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: var(--space-l);
+    align-items: start;
+  }
+
+  .brand-link {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+  }
+
+  .footer-logo {
+    width: clamp(9rem, 10vw, 11rem);
+    height: auto;
+  }
+
+  .brand-copy {
+    margin: var(--space-xs) 0 0;
+    color: var(--color-text-medium);
+    font-size: var(--font-size-sm);
+    max-width: 34ch;
+    line-height: 1.6;
+  }
+
+  .footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .column-title {
+    margin: 0 0 0.3rem;
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-disabled);
+    font-weight: 700;
+  }
+
+  .footer-column a {
+    color: var(--color-text-high);
+    text-decoration: none;
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    width: fit-content;
+    transition: color 0.2s ease;
+  }
+
+  .footer-column a:hover,
+  .footer-column a:focus-visible {
+    color: var(--color-accent);
+    outline: none;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .social-link {
+    width: 2.35rem;
+    height: 2.35rem;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--color-text-high);
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .social-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex: 0 0 auto;
+  }
+
+  .social-link:hover,
+  .social-link:focus-visible {
+    color: var(--color-accent);
+    border-color: rgba(249, 115, 22, 0.55);
+    background: rgba(249, 115, 22, 0.08);
+    transform: translateY(-1px);
+    outline: none;
+  }
+
+  .column-note {
+    margin: 0.5rem 0 0;
+    color: var(--color-text-disabled);
+    font-size: var(--font-size-sm);
+  }
+
+  .footer-bottom {
+    width: min(1120px, 100%);
+    margin: var(--space-l) auto 0;
+    padding-top: var(--space-s);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .footer-bottom p {
+    margin: 0;
+    color: var(--color-text-disabled);
+    font-size: var(--font-size-sm);
+  }
+
+  @media (max-width: 900px) {
+    .footer-shell {
+      grid-template-columns: 1fr;
+      gap: var(--space-m);
+    }
+
+    .footer-bottom {
+      margin-top: var(--space-m);
+    }
+  }
+</style>
