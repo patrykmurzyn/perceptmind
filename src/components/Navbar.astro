@@ -22,17 +22,17 @@ import logoWhite from '../assets/logo_white.svg';
         Offer
         <span class="trigger-caret" aria-hidden="true">▾</span>
       </button>
-      <div class="dropdown-menu" id="offer-menu" role="menu" aria-label="Offer">
-        <a href="#offer-ai-automation" class="dropdown-link offer-link" data-offer-index="0" role="menuitem" tabindex="-1">
+      <div class="dropdown-menu" id="offer-menu" aria-label="Offer links">
+        <a href="#offer-ai-automation" class="dropdown-link offer-link" data-offer-index="0">
           AI Automation
         </a>
-        <a href="#offer-web-development" class="dropdown-link offer-link" data-offer-index="1" role="menuitem" tabindex="-1">
+        <a href="#offer-web-development" class="dropdown-link offer-link" data-offer-index="1">
           Web Development
         </a>
-        <a href="#offer-ai-trust-security-solutions" class="dropdown-link offer-link" data-offer-index="2" role="menuitem" tabindex="-1">
+        <a href="#offer-ai-trust-security-solutions" class="dropdown-link offer-link" data-offer-index="2">
           AI Trust &amp; Security Solutions
         </a>
-        <a href="#offer-ai-strategy-consulting" class="dropdown-link offer-link" data-offer-index="3" role="menuitem" tabindex="-1">
+        <a href="#offer-ai-strategy-consulting" class="dropdown-link offer-link" data-offer-index="3">
           AI Strategy &amp; Consulting
         </a>
       </div>
@@ -42,8 +42,6 @@ import logoWhite from '../assets/logo_white.svg';
 </nav>
 
 <script>
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
   const dropdown = document.querySelector('.nav-dropdown') as HTMLDivElement | null;
   const trigger = document.getElementById('offer-trigger') as HTMLButtonElement | null;
   const menu = document.getElementById('offer-menu') as HTMLDivElement | null;
@@ -52,13 +50,22 @@ import logoWhite from '../assets/logo_white.svg';
   const contactLink = document.getElementById('contact-link') as HTMLAnchorElement | null;
   const contactSection = document.getElementById('contact') as HTMLElement | null;
   const offerLinks = Array.from(document.querySelectorAll('.offer-link')) as HTMLAnchorElement[];
+  const navbar = document.querySelector('.navbar') as HTMLElement | null;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function scrollToSection(section: HTMLElement) {
+    const offset = navbar?.offsetHeight ?? 0;
+    const targetY = Math.max(0, section.getBoundingClientRect().top + window.scrollY - offset - 8);
+    window.scrollTo({
+      top: targetY,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth'
+    });
+  }
+
   const setOpen = (open: boolean) => {
     if (!dropdown || !trigger || !menu) return;
     dropdown.classList.toggle('is-open', open);
     trigger.setAttribute('aria-expanded', String(open));
-    offerLinks.forEach((link) => {
-      link.tabIndex = open ? 0 : -1;
-    });
   };
 
   trigger?.addEventListener('click', () => {
@@ -80,36 +87,25 @@ import logoWhite from '../assets/logo_white.svg';
     if (!heroSection) return;
     event.preventDefault();
     setOpen(false);
-    window.scrollTo({
-      top: heroSection.offsetTop,
-      behavior: 'smooth'
-    });
+    scrollToSection(heroSection);
   });
 
   contactLink?.addEventListener('click', (event) => {
     if (!contactSection) return;
     event.preventDefault();
     setOpen(false);
-    window.scrollTo({
-      top: contactSection.offsetTop,
-      behavior: 'smooth'
-    });
+    scrollToSection(contactSection);
   });
 
   offerLinks.forEach((link) => {
     link.addEventListener('click', (event) => {
       const index = Number(link.dataset.offerIndex);
       if (!Number.isFinite(index)) return;
-
-      const trigger = ScrollTrigger.getById('horizontal-stack-scroll');
-      if (!trigger) return;
-
       event.preventDefault();
-      const progress = index / Math.max(1, offerLinks.length - 1);
-      const targetY = trigger.start + (trigger.end - trigger.start) * progress;
-      window.scrollTo({ top: targetY, behavior: 'smooth' });
-
+      window.dispatchEvent(new CustomEvent('offer:go', { detail: { index } }));
+      window.history.replaceState(null, '', link.getAttribute('href') ?? '#offer');
       setOpen(false);
+      trigger?.focus();
     });
   });
 </script>
@@ -257,7 +253,7 @@ import logoWhite from '../assets/logo_white.svg';
 
     .nav-link {
       padding: 0.46rem 0.72rem;
-      font-size: var(--font-size-xs);
+      font-size: var(--font-size-sm);
     }
 
     .dropdown-menu {

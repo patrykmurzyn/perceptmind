@@ -16,21 +16,33 @@ import Footer from '../components/Footer.astro';
   <NeuralBackground />
 
   <main id="hero">
-    <h1 class="title title-top">Percept</h1>
-    <h1 class="title title-bottom">
-      M<span class="i-container"><span class="i" id="mind-i">!</span></span>nd
+    <h1 class="title">
+      <span class="title-line title-top">Percept</span>
+      <span class="title-line title-bottom">
+        M<span class="i-container"><span class="i" id="mind-i">!</span></span>nd
+      </span>
     </h1>
-    <h2 class="subtitle">
-      <div class="subtitle-content">
+    <p class="subtitle">
+      <span class="subtitle-content">
         <span>AI Solutions for</span>
         <span id="changing-text" class="highlight-text">Business</span>
-      </div>
-    </h2>
+      </span>
+    </p>
   </main>
 
-  <section class="vertical-stack" id="vertical-stack">
-    <div class="vertical-track" id="vertical-track">
-      <section class="vertical-panel panel-1" id="offer-ai-automation">
+  <section class="offer-section" id="offer">
+    <div class="offer-header">
+      <span class="offer-kicker">What We Build</span>
+      <h2>Offer</h2>
+      <p>Select a track and see how we deliver it end-to-end.</p>
+    </div>
+    <div class="offer-carousel" data-offer-carousel>
+      <button class="carousel-control" id="offer-prev" type="button" aria-label="Previous offer">
+        ←
+      </button>
+      <div class="offer-viewport" tabindex="0" aria-label="Offer carousel">
+        <div class="offer-track" id="offer-track">
+      <article class="offer-slide panel-1" id="offer-ai-automation">
         <div class="panel-background-text">PURE EFFICIENCY</div>
         <div class="panel-content">
           <div class="panel-icon-wrapper large-icon">
@@ -86,8 +98,8 @@ import Footer from '../components/Footer.astro';
             </p>
           </div>
         </div>
-      </section>
-      <section class="vertical-panel panel-2" id="offer-web-development">
+      </article>
+      <article class="offer-slide panel-2" id="offer-web-development">
         <div class="panel-background-text">MODERN WEB</div>
         <div class="panel-content">
           <div class="panel-icon-wrapper large-icon">
@@ -146,8 +158,8 @@ import Footer from '../components/Footer.astro';
             </p>
           </div>
         </div>
-      </section>
-      <section class="vertical-panel panel-3" id="offer-ai-trust-security-solutions">
+      </article>
+      <article class="offer-slide panel-3" id="offer-ai-trust-security-solutions">
         <div class="panel-background-text">SECURE AI</div>
         <div class="panel-content">
           <div class="panel-icon-wrapper large-icon">
@@ -189,8 +201,8 @@ import Footer from '../components/Footer.astro';
             </p>
           </div>
         </div>
-      </section>
-      <section class="vertical-panel panel-4" id="offer-ai-strategy-consulting">
+      </article>
+      <article class="offer-slide panel-4" id="offer-ai-strategy-consulting">
         <div class="panel-background-text">FUTURE VISION</div>
         <div class="panel-content">
           <div class="panel-icon-wrapper large-icon">
@@ -234,7 +246,18 @@ import Footer from '../components/Footer.astro';
             </p>
           </div>
         </div>
-      </section>
+      </article>
+        </div>
+      </div>
+      <button class="carousel-control" id="offer-next" type="button" aria-label="Next offer">
+        →
+      </button>
+    </div>
+    <div class="offer-dots" aria-label="Offer slides">
+      <button type="button" class="offer-dot is-active" data-offer-index="0" aria-label="Go to AI Automation"></button>
+      <button type="button" class="offer-dot" data-offer-index="1" aria-label="Go to Web Development"></button>
+      <button type="button" class="offer-dot" data-offer-index="2" aria-label="Go to AI Trust and Security Solutions"></button>
+      <button type="button" class="offer-dot" data-offer-index="3" aria-label="Go to AI Strategy and Consulting"></button>
     </div>
   </section>
 
@@ -243,20 +266,61 @@ import Footer from '../components/Footer.astro';
 
   <script>
     import { gsap } from 'gsap';
-    import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-    gsap.registerPlugin(ScrollTrigger);
 
     const iElement = document.getElementById('mind-i') as HTMLSpanElement | null;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const verticalStack = document.getElementById('vertical-stack');
-    const verticalTrack = document.getElementById('vertical-track') as HTMLDivElement | null;
-    const verticalPanels = Array.from(
-      verticalStack?.querySelectorAll('.vertical-panel') ?? []
-    ) as HTMLElement[];
-    let verticalScrollTween: gsap.core.Tween | null = null;
+    const offerTrack = document.getElementById('offer-track') as HTMLDivElement | null;
+    const offerCarousel = document.querySelector('[data-offer-carousel]') as HTMLDivElement | null;
+    const offerViewport = offerCarousel?.querySelector('.offer-viewport') as HTMLDivElement | null;
+    const initialOfferSlides = Array.from(offerTrack?.querySelectorAll('.offer-slide') ?? []) as HTMLElement[];
+    const prevOfferButton = document.getElementById('offer-prev') as HTMLButtonElement | null;
+    const nextOfferButton = document.getElementById('offer-next') as HTMLButtonElement | null;
+    const offerDots = Array.from(document.querySelectorAll('.offer-dot')) as HTMLButtonElement[];
+    const offerSection = document.getElementById('offer') as HTMLElement | null;
     let pendingCall: gsap.core.Tween | null = null;
     let textRotationCall: gsap.core.Tween | null = null;
+    let activeOfferIndex = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let isTouchTracking = false;
+    let isOfferWrapping = false;
+
+    const offerSlides = [...initialOfferSlides];
+    const realOfferCount = offerSlides.length;
+    const hasOfferLoop = realOfferCount > 1;
+
+    function getOfferTrackTransition() {
+      return prefersReducedMotion ? 'none' : 'transform 0.45s ease';
+    }
+
+    function normalizeOfferIndex(index: number) {
+      if (realOfferCount === 0) return 0;
+      return ((index % realOfferCount) + realOfferCount) % realOfferCount;
+    }
+
+    function setOfferTrackPosition(trackIndex: number, animate = true) {
+      if (!offerTrack) return;
+      offerTrack.style.transition = animate ? getOfferTrackTransition() : 'none';
+      offerTrack.style.transform = `translateX(-${trackIndex * 100}%)`;
+      if (!animate) {
+        requestAnimationFrame(() => {
+          if (offerTrack) offerTrack.style.transition = getOfferTrackTransition();
+        });
+      }
+    }
+
+    if (offerTrack && hasOfferLoop) {
+      const firstClone = offerSlides[0].cloneNode(true) as HTMLElement;
+      const lastClone = offerSlides[realOfferCount - 1].cloneNode(true) as HTMLElement;
+
+      firstClone.id = `${offerSlides[0].id}-clone`;
+      lastClone.id = `${offerSlides[realOfferCount - 1].id}-clone`;
+      firstClone.setAttribute('aria-hidden', 'true');
+      lastClone.setAttribute('aria-hidden', 'true');
+
+      offerTrack.appendChild(firstClone);
+      offerTrack.insertBefore(lastClone, offerTrack.firstChild);
+    }
 
     if (!iElement) {
       console.warn('Animated title element not found.');
@@ -584,45 +648,173 @@ import Footer from '../components/Footer.astro';
       });
     }
 
-    const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
-    const enablePanelSnap = !prefersReducedMotion && !isCoarsePointer;
+    function syncOfferDots(index: number) {
+      offerDots.forEach((dot, dotIndex) => {
+        const isActive = dotIndex === index;
+        dot.classList.toggle('is-active', isActive);
+        dot.setAttribute('aria-current', isActive ? 'true' : 'false');
+      });
+      if (prevOfferButton) prevOfferButton.disabled = !hasOfferLoop && index === 0;
+      if (nextOfferButton) nextOfferButton.disabled = !hasOfferLoop && index === realOfferCount - 1;
+    }
 
-    if (verticalStack && verticalTrack && verticalPanels.length > 1) {
-      const panelCount = verticalPanels.length;
-      verticalScrollTween = gsap.to(verticalTrack, {
-        x: () => -(verticalTrack.scrollWidth - window.innerWidth),
-        ease: 'none',
-        force3D: true,
-        scrollTrigger: {
-          id: 'horizontal-stack-scroll',
-          trigger: verticalStack,
-          pin: true,
-          scrub: 0.35,
-          snap: enablePanelSnap
-            ? {
-                snapTo: 1 / (panelCount - 1),
-                duration: { min: 0.08, max: 0.22 },
-                delay: 0.08,
-                ease: 'power1.out'
-              }
-            : undefined,
-          start: 'top top',
-          end: () =>
-            `+=${Math.max(
-              window.innerWidth * (panelCount - 1),
-              verticalTrack.scrollWidth - window.innerWidth
-            )}`,
-          anticipatePin: 1,
-          fastScrollEnd: true,
-          invalidateOnRefresh: true
+    function goToOffer(index: number, includeScroll = false, animate = true) {
+      if (!offerTrack || realOfferCount === 0 || isOfferWrapping) return;
+      activeOfferIndex = hasOfferLoop
+        ? normalizeOfferIndex(index)
+        : Math.max(0, Math.min(index, realOfferCount - 1));
+      const targetIndex = hasOfferLoop ? activeOfferIndex + 1 : activeOfferIndex;
+      setOfferTrackPosition(targetIndex, animate);
+      syncOfferDots(activeOfferIndex);
+      if (includeScroll && offerSection) {
+        offerSection.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth', block: 'start' });
+      }
+    }
+
+    function goToNextOffer(includeScroll = false) {
+      if (!offerTrack || realOfferCount === 0 || isOfferWrapping) return;
+      if (!hasOfferLoop) {
+        goToOffer(activeOfferIndex + 1, includeScroll);
+        return;
+      }
+      if (activeOfferIndex === realOfferCount - 1) {
+        if (prefersReducedMotion) {
+          goToOffer(0, includeScroll, false);
+          return;
+        }
+        isOfferWrapping = true;
+        activeOfferIndex = 0;
+        syncOfferDots(activeOfferIndex);
+        setOfferTrackPosition(realOfferCount + 1, true);
+        if (includeScroll && offerSection) {
+          offerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return;
+      }
+      goToOffer(activeOfferIndex + 1, includeScroll);
+    }
+
+    function goToPreviousOffer(includeScroll = false) {
+      if (!offerTrack || realOfferCount === 0 || isOfferWrapping) return;
+      if (!hasOfferLoop) {
+        goToOffer(activeOfferIndex - 1, includeScroll);
+        return;
+      }
+      if (activeOfferIndex === 0) {
+        if (prefersReducedMotion) {
+          goToOffer(realOfferCount - 1, includeScroll, false);
+          return;
+        }
+        isOfferWrapping = true;
+        activeOfferIndex = realOfferCount - 1;
+        syncOfferDots(activeOfferIndex);
+        setOfferTrackPosition(0, true);
+        if (includeScroll && offerSection) {
+          offerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        return;
+      }
+      goToOffer(activeOfferIndex - 1, includeScroll);
+    }
+
+    function goToOfferByHash() {
+      const hash = window.location.hash.replace('#', '');
+      if (!hash) return;
+      const index = offerSlides.findIndex((slide) => slide.id === hash);
+      if (index >= 0) {
+        goToOffer(index);
+      }
+    }
+
+    if (offerTrack && realOfferCount > 0) {
+      offerCarousel?.classList.add('is-ready');
+      offerSection?.classList.add('is-ready');
+      setOfferTrackPosition(hasOfferLoop ? 1 : 0, false);
+      syncOfferDots(activeOfferIndex);
+      offerTrack.addEventListener('transitionend', (event) => {
+        if (!(event.target instanceof HTMLElement) || event.target !== offerTrack) return;
+        if (event.propertyName !== 'transform' || !isOfferWrapping) return;
+        isOfferWrapping = false;
+        setOfferTrackPosition(activeOfferIndex + 1, false);
+      });
+      prevOfferButton?.addEventListener('click', () => {
+        goToPreviousOffer();
+      });
+      nextOfferButton?.addEventListener('click', () => {
+        goToNextOffer();
+      });
+      offerDots.forEach((dot) => {
+        dot.addEventListener('click', () => {
+          const index = Number(dot.dataset.offerIndex);
+          if (Number.isFinite(index)) {
+            goToOffer(index);
+          }
+        });
+      });
+
+      offerViewport?.addEventListener('keydown', (event) => {
+        if (event.key === 'ArrowRight') {
+          event.preventDefault();
+          goToNextOffer();
+        } else if (event.key === 'ArrowLeft') {
+          event.preventDefault();
+          goToPreviousOffer();
+        } else if (event.key === 'Home') {
+          event.preventDefault();
+          goToOffer(0);
+        } else if (event.key === 'End') {
+          event.preventDefault();
+          goToOffer(realOfferCount - 1);
         }
       });
+
+      offerViewport?.addEventListener(
+        'touchstart',
+        (event) => {
+          if (event.touches.length !== 1) return;
+          touchStartX = event.touches[0].clientX;
+          touchStartY = event.touches[0].clientY;
+          isTouchTracking = true;
+        },
+        { passive: true }
+      );
+
+      offerViewport?.addEventListener(
+        'touchend',
+        (event) => {
+          if (!isTouchTracking || event.changedTouches.length !== 1) return;
+          const touch = event.changedTouches[0];
+          const deltaX = touch.clientX - touchStartX;
+          const deltaY = touch.clientY - touchStartY;
+          isTouchTracking = false;
+
+          if (Math.abs(deltaX) < 48 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+            return;
+          }
+
+          if (deltaX < 0) {
+            goToNextOffer();
+          } else {
+            goToPreviousOffer();
+          }
+        },
+        { passive: true }
+      );
+
+      window.addEventListener('offer:go', (event) => {
+        const customEvent = event as CustomEvent<{ index?: number }>;
+        const index = customEvent.detail?.index;
+        if (typeof index === 'number') {
+          goToOffer(index, true);
+        }
+      });
+      window.addEventListener('hashchange', goToOfferByHash);
+      goToOfferByHash();
     }
 
     window.addEventListener('beforeunload', () => {
       pendingCall?.kill();
       textRotationCall?.kill();
-      verticalScrollTween?.kill();
     });
   </script>
 
@@ -632,12 +824,19 @@ import Footer from '../components/Footer.astro';
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      height: auto;
+      min-height: 100vh;
+      min-height: 100svh;
       width: 100%;
+      padding-top: clamp(4.5rem, 7vh, 6rem);
+      padding-bottom: var(--space-m);
       gap: var(--space-3xs);
     }
 
     .title {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       font-family: 'Satoshi', sans-serif;
       font-weight: 900;
       font-size: var(--font-size-6xl);
@@ -649,12 +848,11 @@ import Footer from '../components/Footer.astro';
       position: relative;
     }
 
-    .title-top {
-      right: 0;
+    .title-line {
+      display: block;
     }
 
     .title-bottom {
-      left: -0.117em;
       margin-top: -0.1em;
     }
 
@@ -707,41 +905,195 @@ import Footer from '../components/Footer.astro';
       text-align: center;
     }
 
-    .vertical-stack {
-      height: 100vh;
+    .offer-section {
       width: 100%;
-      overflow: hidden;
-      position: relative;
-      overscroll-behavior: none;
+      margin: 0;
+      padding: var(--space-xl) 0 var(--space-2xl);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(30, 144, 255, 0.1), rgba(8, 12, 20, 0) 56%),
+        linear-gradient(180deg, rgba(8, 12, 20, 0), rgba(8, 12, 20, 0.58) 18%, rgba(8, 12, 20, 0) 100%);
     }
 
-    .vertical-track {
+    .offer-header {
+      width: min(1120px, 100%);
+      margin-inline: auto;
+      text-align: center;
+      margin-bottom: var(--space-l);
+      padding-inline: var(--space-m);
+    }
+
+    .offer-kicker {
+      display: inline-block;
+      font-size: var(--font-size-sm);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-accent);
+      margin-bottom: 0.45rem;
+      font-weight: 700;
+    }
+
+    .offer-header h2 {
+      margin: 0;
+      font-size: var(--font-size-5xl);
+      letter-spacing: -0.02em;
+      line-height: 0.95;
+      text-transform: uppercase;
+    }
+
+    .offer-header p {
+      margin: var(--space-xs) auto 0;
+      color: var(--color-text-medium);
+      max-width: 48ch;
+      font-size: var(--font-size-base);
+    }
+
+    .offer-carousel {
+      width: min(1380px, 100%);
+      margin-inline: auto;
+      padding-inline: var(--space-m);
       display: flex;
-      flex-wrap: nowrap;
-      width: 400vw;
-      height: 100%;
-      will-change: transform;
-      transform: translate3d(0, 0, 0);
+      flex-direction: column;
+      gap: var(--space-m);
+      position: relative;
     }
 
-    .vertical-panel {
-      height: 100vh;
-      width: 100vw;
-      flex: 0 0 100vw;
+    .offer-viewport {
+      overflow: visible;
+      width: 100%;
+      border-radius: 1rem;
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.35),
+        0 2px 0 rgba(255, 255, 255, 0.07) inset;
+    }
+
+    .offer-track {
+      display: grid;
+      gap: var(--space-m);
+    }
+
+    .offer-slide {
+      width: 100%;
+      flex: 0 0 100%;
+      min-height: min(86vh, 900px);
       display: flex;
       align-items: center;
       justify-content: center;
       contain: layout paint;
+      border-radius: 1rem;
+      overflow: hidden;
     }
 
-    .vertical-panel h3 {
-      margin: 0;
-      font-family: 'Satoshi', sans-serif;
-      font-size: clamp(2rem, 8vw, 7rem);
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      color: #ffffff;
-      text-transform: uppercase;
+    .carousel-control {
+      display: inline-grid;
+      place-items: center;
+      width: 2.6rem;
+      height: 2.6rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--color-text-high);
+      background: rgba(255, 255, 255, 0.04);
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .carousel-control:hover {
+      border-color: rgba(249, 115, 22, 0.7);
+      color: var(--color-accent);
+      background: rgba(249, 115, 22, 0.08);
+    }
+
+    .carousel-control:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+    }
+
+    .carousel-control:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    .offer-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.45rem;
+      margin-top: var(--space-s);
+      min-height: 0.62rem;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .offer-section.is-ready .offer-dots {
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .offer-carousel.is-ready {
+      display: block;
+    }
+
+    .offer-carousel.is-ready .offer-viewport {
+      overflow: hidden;
+    }
+
+    .offer-carousel.is-ready .offer-track {
+      display: flex;
+      gap: 0;
+      transform: translateX(0);
+      transition: transform 0.45s ease;
+      will-change: transform;
+    }
+
+    .offer-carousel.is-ready .carousel-control {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #offer-prev {
+      left: calc(var(--space-m) + 0.6rem);
+    }
+
+    #offer-next {
+      right: calc(var(--space-m) + 0.6rem);
+    }
+
+    .offer-dot {
+      width: 0.62rem;
+      height: 0.62rem;
+      border-radius: 9999px;
+      border: 0;
+      background: rgba(255, 255, 255, 0.28);
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .offer-dot.is-active {
+      background: var(--color-accent);
+      transform: scale(1.15);
+    }
+
+    .offer-dot:focus-visible {
+      outline: 2px solid var(--color-accent);
+      outline-offset: 2px;
+    }
+
+    .panel-1,
+    .panel-2,
+    .panel-3,
+    .panel-4 {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
     }
 
     .panel-1 {
@@ -796,11 +1148,9 @@ import Footer from '../components/Footer.astro';
       .i {
         transform: none;
       }
-
-      .vertical-stack {
-        height: auto;
+      .offer-carousel.is-ready .offer-track {
+        transition: none;
       }
-
     }
 
     @media (max-width: 640px) {
@@ -825,6 +1175,40 @@ import Footer from '../components/Footer.astro';
         min-height: 1.25em;
         text-align: center;
       }
+
+      .offer-carousel {
+        gap: 0.45rem;
+        padding-inline: var(--space-s);
+      }
+
+      .carousel-control {
+        width: 2.3rem;
+        height: 2.3rem;
+      }
+
+      .offer-slide {
+        min-height: min(82vh, 760px);
+      }
+
+      .offer-section {
+        padding-inline: 0;
+      }
+
+      .offer-header {
+        margin-bottom: var(--space-m);
+      }
+
+      .offer-header h2 {
+        font-size: var(--font-size-4xl);
+      }
+
+      #offer-prev {
+        left: calc(var(--space-s) + 0.2rem);
+      }
+
+      #offer-next {
+        right: calc(var(--space-s) + 0.2rem);
+      }
     }
 
     .panel-content {
@@ -843,17 +1227,26 @@ import Footer from '../components/Footer.astro';
       position: absolute;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) rotate(-15deg);
+      width: 100%;
+      transform: translate(-50%, -50%) rotate(-8deg);
       font-family: 'Satoshi', sans-serif;
       font-weight: 900;
-      font-size: 15vw; /* Massive size */
+      font-size: clamp(2.4rem, 9.5vw, 9rem);
       color: var(--color-accent);
       opacity: 0.05;
       white-space: nowrap;
+      text-align: center;
       pointer-events: none;
       z-index: 1;
       text-transform: uppercase;
       letter-spacing: -0.05em;
+    }
+
+    @media (max-width: 900px) {
+      .panel-background-text {
+        font-size: clamp(2rem, 11vw, 6rem);
+        transform: translate(-50%, -50%) rotate(-5deg);
+      }
     }
 
     .panel-title {
